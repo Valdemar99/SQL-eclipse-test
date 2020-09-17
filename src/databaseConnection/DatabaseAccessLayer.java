@@ -6,22 +6,40 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class DatabaseAccessLayer {
-	public ResultSet findEmployee(String empID) throws ClassNotFoundException, SQLException {
-		Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-		String url = "jdbc:sqlserver://localhost:1433;database=SQL-övningar";
-		String user = "user";
-		String password = "1";
-		
-		Connection con = DriverManager.getConnection(url, user, password);
-		String query = "Select * FROM Employee WHERE empID = " + "'" + empID + "'";
-		
-		PreparedStatement ps = con.prepareStatement(query);
-		
-		ResultSet rs = ps.executeQuery();
-		con.close();
-		return rs;
-}
 
+
+public class DatabaseAccessLayer {
+	
+	private String url = "jdbc:sqlserver://localhost:1433;database=SQL-övningar";
+	private String user = "user";
+	private String password = "1";
+	private Connection con;
+	
+	public ResultSet runSelectQuery(String query) throws SQLException {
+		con = DriverManager.getConnection(url, user, password);
+		PreparedStatement ps = con.prepareStatement(query);
+		ResultSet resultSet = ps.executeQuery();
+		return resultSet;
+	}
+	public int runQuery(String query) throws SQLException {
+		con = DriverManager.getConnection(url, user, password);
+		PreparedStatement ps = con.prepareStatement(query);
+		int amountOfRows = ps.executeUpdate();
+		return amountOfRows;
+	}
+	
+	public ResultSet findEmployee(String empID) throws ClassNotFoundException, SQLException{
+		String query = "Select * FROM Employee WHERE empID = '" + empID + "'";
+		return runSelectQuery(query);
+		
+	}
+	public int editEmployee(String empID, String empName, String empAddress, String empPhoneNumber, int empSalary) throws ClassNotFoundException, SQLException {
+		
+		String query = "UPDATE Employee SET empName = " + "'" + empName + "'," + 
+		"empPhoneNumber = '" + empPhoneNumber + "'," + 
+		"empSalary = " + empSalary +
+		"WHERE empID = '" + empID +  "'";
+		return runQuery(query);
+	}
 }
 
